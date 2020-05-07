@@ -118,6 +118,39 @@ if (document.URL.match("status.php")) {
     }
 }
 
+function generateCard(panelStyle, originNode, title) {
+    let card = document.createElement("div");
+    card.classList.add("panel");
+    panelStyle.split(" ").forEach(element => {
+        card.classList.add(element)
+    });
+
+    let cardTitle = document.createElement("div");
+    cardTitle.classList.add("panel-heading")
+    cardTitle.innerText = title;
+    card.appendChild(cardTitle);
+
+    let cardBody = document.createElement("div");
+    cardBody.classList.add("panel-body");
+    cardBody.appendChild(originNode)
+    card.appendChild(cardBody);
+
+    card.style.paddingLeft = "0px"
+    card.style.paddingRight = "0px"
+
+    return card;
+}
+
+function appendToRow(elements) {
+    let row = document.createElement("div")
+    row.classList.add("row")
+    for (let index = 0; index < elements.length; index++) {
+        const element = elements[index];
+        row.appendChild(element)
+    }
+    return row
+}
+
 if (document.URL.match("pid")) {
     // problem.php 及其相关
     // Sample Input / Output 重置为pre块
@@ -147,12 +180,6 @@ if (document.URL.match("pid")) {
     const appendCodeDiv = contents[6];
 
     const rowDesc = document.createElement("div");
-    const rowInputOutput = document.createElement("div");
-    const colInput = document.createElement("div");
-    const colOutput = document.createElement("div");
-    const rowSampleIO = document.createElement("div");
-    const colSampleIn = document.createElement("div");
-    const colSampleOut = document.createElement("div");
     const rowHint = document.createElement("div");
     const rowAppendCode = document.createElement("div");
 
@@ -165,22 +192,10 @@ if (document.URL.match("pid")) {
     rowDesc.appendChild(description);
     maindiv.insertBefore(rowDesc, centerdivs[1]);
 
-    rowInputOutput.classList.add("row");
-
-    colInput.classList.add("panel", "panel-default", "col-md-1");
-    let inputTitle = document.createElement("div");
-    inputTitle.innerHTML = "Input";
-    inputTitle.classList.add("panel-heading");
-    input.classList.add("panel-body");
-    colInput.appendChild(inputTitle);
-    colInput.appendChild(input);
-    colOutput.classList.add("panel", "panel-default", "col-md-1");
-    let outputTitle = document.createElement("div");
-    outputTitle.innerHTML = "Output";
-    outputTitle.classList.add("panel-heading");
-    output.classList.add("panel-body");
-    colOutput.appendChild(outputTitle);
-    colOutput.appendChild(output);
+    let colInput = generateCard("panel-info col-md-6", input, "Input")
+    let colOutput = generateCard("panel-info col-md-6", output, "Output")
+    let rowInputOutput = appendToRow(new Array(colInput, colOutput))
+    maindiv.insertBefore(rowInputOutput, centerdivs[1]);
 
     let colPlaceHolder = document.createElement("div");
     colPlaceHolder.classList.add("col-md-1");
@@ -201,27 +216,16 @@ if (document.URL.match("pid")) {
     rowInputOutput.appendChild(colOutput);
     maindiv.insertBefore(rowInputOutput, centerdivs[1]);
 
+    let colSampleIn = generateCard("panel-primary col-md-1", sampleIn, "Sample Input")
+    let colSampleOut = generateCard("panel-success col-md-1", sampleOut, "Sample Output")
+    let rowSampleIO = appendToRow(new Array(colSampleIn, colSampleOut))
     rowSampleIO.classList.add("row");
-    colSampleIn.classList.add("panel", "panel-primary", "col-md-1");
-    colSampleOut.classList.add("panel", "panel-success", "col-md-1");
     colSampleIn.style["width"] = 45 + "%";
     colSampleOut.style["width"] = 45 + "%";
-    const sampleInTitle = document.createElement("div");
-    const sampleOutTitle = document.createElement("div");
-    sampleInTitle.innerHTML = "Sample Input";
-    sampleOutTitle.innerHTML = "Sample Output";
-    sampleInTitle.classList.add("panel-heading");
-    sampleOutTitle.classList.add("panel-heading");
     colSampleIn.style["padding-left"] = 0;
     colSampleIn.style["padding-right"] = 0;
     colSampleOut.style["padding-left"] = 0;
     colSampleOut.style["padding-right"] = 0;
-    sampleIn.classList.add("panel-body");
-    sampleOut.classList.add("panel-body");
-    colSampleIn.appendChild(sampleInTitle);
-    colSampleIn.appendChild(sampleIn);
-    colSampleOut.appendChild(sampleOutTitle);
-    colSampleOut.appendChild(sampleOut);
     rowSampleIO.appendChild(colSampleIn);
     colPlaceHolder = document.createElement("div");
     colPlaceHolder.style["width"] = 10 + "%";
