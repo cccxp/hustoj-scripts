@@ -179,17 +179,10 @@ if (document.URL.match("pid")) {
     const hint = contents[5];
     const appendCodeDiv = contents[6];
 
-    const rowDesc = document.createElement("div");
     const rowHint = document.createElement("div");
     const rowAppendCode = document.createElement("div");
 
-    rowDesc.classList.add("panel", "panel-info", "row");
-    description.classList.add("panel-body");
-    let descTitle = document.createElement("div");
-    descTitle.classList.add("panel", "panel-heading");
-    descTitle.innerHTML = "Description";
-    rowDesc.appendChild(descTitle);
-    rowDesc.appendChild(description);
+    let rowDesc = generateCard("panel-info row", description, "Description")
     maindiv.insertBefore(rowDesc, centerdivs[1]);
 
     let colInput = generateCard("panel-info col-md-6", input, "Input")
@@ -211,9 +204,7 @@ if (document.URL.match("pid")) {
     colOutput.style["width"] = 45 + "%";
     colPlaceHolder.style["width"] = 10 + "%";
 
-    rowInputOutput.appendChild(colInput);
     rowInputOutput.appendChild(colPlaceHolder);
-    rowInputOutput.appendChild(colOutput);
     maindiv.insertBefore(rowInputOutput, centerdivs[1]);
 
     let colSampleIn = generateCard("panel-primary col-md-1", sampleIn, "Sample Input")
@@ -231,7 +222,6 @@ if (document.URL.match("pid")) {
     colPlaceHolder.style["width"] = 10 + "%";
     colPlaceHolder.classList.add("col-md-1");
     rowSampleIO.appendChild(colPlaceHolder);
-    rowSampleIO.appendChild(colSampleOut);
     maindiv.insertBefore(rowSampleIO, centerdivs[1]);
 
     rowHint.classList.add("row");
