@@ -185,14 +185,12 @@ if (document.URL.match("pid")) {
     let rowDesc = generateCard("panel-info row", description, "Description")
     maindiv.insertBefore(rowDesc, centerdivs[1]);
 
+    let colPlaceHolder = document.createElement("div"); // col-md-1用处仅限让元素变为列，具体宽度会被后边设定的width覆盖掉
+    colPlaceHolder.classList.add("col-md-1");
     let colInput = generateCard("panel-info col-md-6", input, "Input")
     let colOutput = generateCard("panel-info col-md-6", output, "Output")
-    let rowInputOutput = appendToRow(new Array(colInput, colOutput))
+    let rowInputOutput = appendToRow(new Array(colInput, colPlaceHolder, colOutput))
     maindiv.insertBefore(rowInputOutput, centerdivs[1]);
-
-    let colPlaceHolder = document.createElement("div");
-    colPlaceHolder.classList.add("col-md-1");
-    // col-md-1用处仅限让元素变为列，具体宽度会被后边设定的width覆盖掉
 
     colInput.style["padding-left"] = 0;
     colInput.style["padding-right"] = 0;
@@ -204,25 +202,20 @@ if (document.URL.match("pid")) {
     colOutput.style["width"] = 45 + "%";
     colPlaceHolder.style["width"] = 10 + "%";
 
-    rowInputOutput.appendChild(colPlaceHolder);
-    maindiv.insertBefore(rowInputOutput, centerdivs[1]);
-
     let colSampleIn = generateCard("panel-primary col-md-1", sampleIn, "Sample Input")
     let colSampleOut = generateCard("panel-success col-md-1", sampleOut, "Sample Output")
-    let rowSampleIO = appendToRow(new Array(colSampleIn, colSampleOut))
-    rowSampleIO.classList.add("row");
+    colPlaceHolder = document.createElement("div");
+    colPlaceHolder.classList.add("col-md-1");
+    let rowSampleIO = appendToRow(new Array(colSampleIn, colPlaceHolder, colSampleOut))
+    maindiv.insertBefore(rowSampleIO, centerdivs[1]);
+
     colSampleIn.style["width"] = 45 + "%";
     colSampleOut.style["width"] = 45 + "%";
     colSampleIn.style["padding-left"] = 0;
     colSampleIn.style["padding-right"] = 0;
     colSampleOut.style["padding-left"] = 0;
     colSampleOut.style["padding-right"] = 0;
-    rowSampleIO.appendChild(colSampleIn);
-    colPlaceHolder = document.createElement("div");
     colPlaceHolder.style["width"] = 10 + "%";
-    colPlaceHolder.classList.add("col-md-1");
-    rowSampleIO.appendChild(colPlaceHolder);
-    maindiv.insertBefore(rowSampleIO, centerdivs[1]);
 
     rowHint.classList.add("row");
     hint.classList.add("alert", "alert-warning");
