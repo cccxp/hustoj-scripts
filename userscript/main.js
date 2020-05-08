@@ -66,14 +66,13 @@ maindiv.classList.add("container");
 maindiv.style.fontSize = 18 + 'px';
 
 // contest, contestrank, status 中的表格
-var tables = document.querySelectorAll("#main > table");
-for (let i = 0; i < tables.length; i++) {
-    tables[i].classList.add("table");
-}
-tables = document.querySelectorAll("#main > center > table");
-for (let i = 0; i < tables.length; i++) {
-    tables[i].classList.add("table");
-}
+document.querySelectorAll("#main > table").forEach((table) => {
+    table.classList.add("table");
+});
+
+document.querySelectorAll("#main > center > table").forEach((table) => {
+    table.classList.add("table");
+});
 
 if (document.URL.match("/contest.php$")) {
     // contest.php 中高亮匹配项目
@@ -314,7 +313,7 @@ if (document.URL.match("pid")) {
 
     rowSubmit.classList.add("row", "panel", "panel-primary");
     submitHead.classList.add("panel-heading");
-    submitHead.innerHTML = "Submit(Experimental)";
+    submitHead.innerHTML = "Submit";
     submitBody.classList.add("panel-body");
     submitContent.style["height"] = 200;
     submitButton.classList.add("btn", "btn-success");
@@ -388,9 +387,9 @@ if (document.URL.match("pid")) {
         // submitForm.submit();
     }
 
-    for (let i = 0; i < contents.length; i++) {
-        contents[i].classList.remove("content"); // 去掉hoj.css提供的.content的样式
-    }
+    document.querySelectorAll(".content").forEach((content) => {
+        content.classList.remove("content"); // 去掉hoj.css提供的.content的样式
+    });
 }
 
 maindiv.id = "n_main"; // 去掉hoj.css提供的#main的样式
