@@ -150,6 +150,20 @@ function appendToRow(elements) {
     return row
 }
 
+function addCopyButtom(targetElem, elemName, createPre = true) {
+    if (createPre) {
+        let pre = targetElem.querySelector("pre");
+        pre.classList.add(elemName);
+    }
+    let copyButton = document.createElement("button");
+    copyButton.classList.add("btn-sm", "btn-default");
+    copyButton.setAttribute("data-clipboard-target", "." + elemName);
+    copyButton.innerHTML = "copy";
+    let clipboard = new ClipboardJS(copyButton);
+    initClipboard(clipboard);
+    targetElem.appendChild(copyButton);
+}
+
 if (document.URL.match("pid")) {
     // problem.php 及其相关
     // Sample Input / Output 重置为pre块
@@ -214,25 +228,8 @@ if (document.URL.match("pid")) {
     rowHint.appendChild(hint);
     maindiv.insertBefore(rowHint, centerdivs[1]);
 
-    let pre = sampleIn.querySelector("pre");
-    pre.classList.add("sample_input");
-    let copyButton = document.createElement("button");
-    copyButton.classList.add("btn-sm", "btn-default");
-    copyButton.setAttribute("data-clipboard-target", ".sample_input");
-    copyButton.innerHTML = "copy";
-    let clipboard = new ClipboardJS(copyButton);
-    initClipboard(clipboard);
-    sampleIn.appendChild(copyButton);
-
-    pre = sampleOut.querySelector("pre");
-    pre.classList.add("sample_output");
-    copyButton = document.createElement("button");
-    copyButton.classList.add("btn-sm", "btn-default");
-    copyButton.setAttribute("data-clipboard-target", ".sample_output");
-    copyButton.innerHTML = "copy";
-    clipboard = new ClipboardJS(copyButton);
-    initClipboard(clipboard);
-    sampleOut.appendChild(copyButton);
+    addCopyButtom(sampleIn, "sample_input")
+    addCopyButtom(sampleOut, "sample_output")
 
     // 请求append code的代码并加到对应位置
     let appendCodes = appendCodeDiv.querySelectorAll("a");
@@ -254,13 +251,7 @@ if (document.URL.match("pid")) {
                 preBlock.style["background-color"] = "#ffffff";
                 preBlock.appendChild(codeBlock);
                 appendCodeDiv.appendChild(preBlock);
-                copyButton = document.createElement("button");
-                copyButton.classList.add("btn-sm", "btn-default");
-                copyButton.setAttribute("data-clipboard-target", ".code_" + i);
-                copyButton.innerHTML = "copy";
-                clipboard = new ClipboardJS(copyButton);
-                initClipboard(clipboard);
-                appendCodeDiv.appendChild(copyButton);
+                addCopyButtom(appendCodeDiv, "code_" + i, false);
             }
         };
         // appendCodeURL[i].remove();
