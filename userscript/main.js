@@ -191,10 +191,6 @@ if (document.URL.match("pid")) {
     let rowInputOutput = appendToRow(new Array(colInput, colPlaceHolder, colOutput))
     maindiv.insertBefore(rowInputOutput, centerdivs[1]);
 
-    colInput.style["padding-left"] = 0;
-    colInput.style["padding-right"] = 0;
-    colOutput.style["padding-left"] = 0;
-    colOutput.style["padding-right"] = 0;
     colInput.style["text-align"] = "justify";
     colOutput.style["text-align"] = "justify";
     colInput.style["width"] = 45 + "%";
@@ -210,10 +206,6 @@ if (document.URL.match("pid")) {
 
     colSampleIn.style["width"] = 45 + "%";
     colSampleOut.style["width"] = 45 + "%";
-    colSampleIn.style["padding-left"] = 0;
-    colSampleIn.style["padding-right"] = 0;
-    colSampleOut.style["padding-left"] = 0;
-    colSampleOut.style["padding-right"] = 0;
     colPlaceHolder.style["width"] = 10 + "%";
 
     rowHint.classList.add("row");
