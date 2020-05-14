@@ -23,7 +23,7 @@
 // @require      https://cdn.bootcss.com/clipboard.js/2.0.6/clipboard.min.js
 // @require      https://cdn.bootcss.com/codemirror/2.36.0/codemirror.min.js
 // @require      https://cdn.bootcss.com/codemirror/2.36.0/clike.min.js
-// @grant        none
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 
@@ -369,6 +369,57 @@ if (document.URL.match("pid")) {
         document.body.appendChild(submitForm);
         submitForm.submit();
     }
+
+    const answerContent = document.createElement("div");
+    const getAnswerButton = document.createElement("button");
+    getAnswerButton.innerHTML = "搜索答案(仅供参考)";
+    answerContent.appendChild(getAnswerButton);
+    let answerCard = generateCard("panel panel-info row", answerContent, "Answer(Demo)");
+    maindiv.insertBefore(answerCard, centerdivs[1]);
+    getAnswerButton.onclick = function () {
+        const problemTitle = document.querySelector("center > h2").textContent;
+        let searchResults = new Array();
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: "http://www.baidu.com/baidu?wd=" + problemTitle + "&tn=monline_dg&ie=utf-8",
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+            },
+            onload: response => {
+                if (response.status == 200) {
+                    let parser = new DOMParser();
+                    let html = parser.parseFromString(response.responseText, "text/html");
+                    html.querySelectorAll("a").forEach((a) => {
+                        if (a.href.match("baidu.com/link")) {
+                            searchResults.push(a.href);
+                        }
+                    });
+                }
+                const answerPre = document.createElement("pre");
+                const answerCode = document.createElement("code");
+                answerCode.classList.add("language-cpp");
+                answerPre.appendChild(answerCode);
+                answerContent.appendChild(answerPre);
+                GM_xmlhttpRequest({
+                    method: 'GET',
+                    url: searchResults[0],
+                    headers: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+                    },
+                    onload: response_ => {
+                        if (response_.status == 200) {
+                            let parser = new DOMParser();
+                            let html = parser.parseFromString(response_.responseText, "text/html");
+                            answerCode.innerHTML = html.querySelectorAll("code")[0].innerHTML;
+                            hljs.initHighlightingOnLoad(); // 高亮
+                        }
+                    }
+                });
+            }
+        });
+    };
 
     document.querySelectorAll(".content").forEach((content) => {
         content.classList.remove("content"); // 去掉hoj.css提供的.content的样式
