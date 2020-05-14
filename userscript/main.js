@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         HUSTOJ 魔改
 // @namespace    http://tampermonkey.net/
-// @version      0.5
-// @description  魔改了一些HUSTOJ界面
+// @version      0.6
+// @description  重构了部分HUSTOJ界面, 添加功能
 // @author       shamisen
 // @match        http://cise.sdust.edu.cn/OJ/contest.php*
 // @match        http://cise.sdust.edu.cn/OJ/problem.php*
