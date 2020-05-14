@@ -32,7 +32,8 @@
 const options = {
     contestHighlight: "1/2" // contest.php中高亮匹配的contest名称，支持正则
     , rankHighlight: "202000000000" // status.php页面高亮对应学号+自动填写
-    ,
+    , appendSubmitCard: true // 将提交页面整合到problem.php， 默认开启
+    , appendAnswerCard: false // 搜索答案（测试功能）， 默认关闭
 }
 
 function initClipboard(clipboard) {
@@ -267,159 +268,164 @@ if (document.URL.match("pid")) {
     rowAppendCode.appendChild(appendCodeDiv);
     maindiv.insertBefore(rowAppendCode, centerdivs[1]);
 
-    let langmask = "";
-    let alinks = document.querySelectorAll("a");
-    for (let i = 0; i < alinks.length; i++) {
-        if (alinks[i].href && alinks[i].href.match("submitpage.php")) {
-            let submitPageButton = alinks[i];
-            submitPageButton.previousSibling.remove();
-            submitPageButton.nextSibling.remove();
-            submitPageButton.innerHTML = "Submit Page";
-            submitPageButton.classList.add("btn", "btn-success");
-            submitPageButton.style["margin"] = 15 + 'px';
-            langmask = submitPageButton.href.match("langmask=([0-9]*)")[1];
-        } else if (alinks[i].href && alinks[i].href.match("problemstatus.php")) {
-            let statusButton = alinks[i];
-            statusButton.nextSibling.remove();
-            statusButton.classList.add("btn", "btn-info");
-            statusButton.style["margin"] = 10 + 'px';
+
+    if (options.appendSubmitCard) {
+        let langmask = "";
+        let alinks = document.querySelectorAll("a");
+        for (let i = 0; i < alinks.length; i++) {
+            if (alinks[i].href && alinks[i].href.match("submitpage.php")) {
+                let submitPageButton = alinks[i];
+                submitPageButton.previousSibling.remove();
+                submitPageButton.nextSibling.remove();
+                submitPageButton.innerHTML = "Submit Page";
+                submitPageButton.classList.add("btn", "btn-success");
+                submitPageButton.style["margin"] = 15 + 'px';
+                langmask = submitPageButton.href.match("langmask=([0-9]*)")[1];
+            } else if (alinks[i].href && alinks[i].href.match("problemstatus.php")) {
+                let statusButton = alinks[i];
+                statusButton.nextSibling.remove();
+                statusButton.classList.add("btn", "btn-info");
+                statusButton.style["margin"] = 10 + 'px';
+            }
+        }
+
+        // 添加提交框
+        const rowSubmit = document.createElement("div");
+        const submitHead = document.createElement("div");
+        const submitBody = document.createElement("div");
+        var submitContent = document.createElement("textarea");
+        const langForm = document.createElement("select");
+        const submitButton = document.createElement("button");
+
+        rowSubmit.classList.add("row", "panel", "panel-primary");
+        submitHead.classList.add("panel-heading");
+        submitHead.innerHTML = "Submit";
+        submitBody.classList.add("panel-body");
+        submitContent.style["height"] = 200;
+        submitButton.classList.add("btn", "btn-success");
+        submitButton.style["margin"] = 10 + 'px';
+        submitButton.innerHTML = "Submit";
+        langForm.classList.add("form-control");
+        langForm.style["margin"] = 10 + 'px';
+
+        const languages = [
+            "C",
+            "C++",
+            "Pasical",
+            "Java",
+            "Ruby",
+            "Bash",
+            "Python",
+            "PHP",
+            "Perl",
+            "C#"
+        ]
+        // 根据submit按钮的URL中的langmask参数判断可提交语言
+        // 参见 https://github.com/zhblue/hustoj/blob/master/trunk/web/submitpage.php
+        langmask = ~parseInt(langmask);
+        for (let i = 0; i < languages.length; i++) {
+            if (1 << i & langmask) {
+                console.log(languages[i]);
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.text = languages[i];
+                langForm.appendChild(opt);
+            }
+        }
+
+        submitBody.appendChild(submitContent);
+        submitBody.appendChild(langForm);
+        submitBody.appendChild(submitButton);
+        rowSubmit.appendChild(submitHead);
+        rowSubmit.appendChild(submitBody);
+        maindiv.insertBefore(rowSubmit, centerdivs[1]);
+
+        const editor = CodeMirror.fromTextArea(submitContent, {
+            mode: "text/x-c++src", // C++高亮
+            lineNumbers: true,
+            indentUnit: 4,
+        });
+
+        submitButton.onclick = function () {
+            // 提交
+            editor.save();
+            const cid = document.URL.match("cid=([0-9]*)")[1];
+            const pid = document.URL.match("pid=([0-9]*)")[1];
+            const submitForm = document.createElement("form");
+            submitForm.action = "submit.php";
+            submitForm.method = "POST";
+            submitForm.style.display = "none";
+            const args = {
+                "cid": cid,
+                "pid": pid,
+                "language": langForm.options[langForm.options.selectedIndex].value,
+                "source": editor.getValue()
+            }
+
+            console.log(args);
+            for (let k in args) {
+                const opt = document.createElement("textarea");
+                opt.name = k;
+                opt.value = args[k];
+                submitForm.appendChild(opt);
+            }
+            document.body.appendChild(submitForm);
+            submitForm.submit();
         }
     }
 
-    // 添加提交框
-    const rowSubmit = document.createElement("div");
-    const submitHead = document.createElement("div");
-    const submitBody = document.createElement("div");
-    var submitContent = document.createElement("textarea");
-    const langForm = document.createElement("select");
-    const submitButton = document.createElement("button");
-
-    rowSubmit.classList.add("row", "panel", "panel-primary");
-    submitHead.classList.add("panel-heading");
-    submitHead.innerHTML = "Submit";
-    submitBody.classList.add("panel-body");
-    submitContent.style["height"] = 200;
-    submitButton.classList.add("btn", "btn-success");
-    submitButton.style["margin"] = 10 + 'px';
-    submitButton.innerHTML = "Submit";
-    langForm.classList.add("form-control");
-    langForm.style["margin"] = 10 + 'px';
-
-    const languages = [
-        "C",
-        "C++",
-        "Pasical",
-        "Java",
-        "Ruby",
-        "Bash",
-        "Python",
-        "PHP",
-        "Perl",
-        "C#"
-    ]
-    // 根据submit按钮的URL中的langmask参数判断可提交语言
-    // 参见 https://github.com/zhblue/hustoj/blob/master/trunk/web/submitpage.php
-    langmask = ~parseInt(langmask);
-    for (let i = 0; i < languages.length; i++) {
-        if (1 << i & langmask) {
-            console.log(languages[i]);
-            const opt = document.createElement("option");
-            opt.value = i;
-            opt.text = languages[i];
-            langForm.appendChild(opt);
-        }
-    }
-
-    submitBody.appendChild(submitContent);
-    submitBody.appendChild(langForm);
-    submitBody.appendChild(submitButton);
-    rowSubmit.appendChild(submitHead);
-    rowSubmit.appendChild(submitBody);
-    maindiv.insertBefore(rowSubmit, centerdivs[1]);
-
-    const editor = CodeMirror.fromTextArea(submitContent, {
-        mode: "text/x-c++src", // C++高亮
-        lineNumbers: true,
-        indentUnit: 4,
-    });
-
-    submitButton.onclick = function () {
-        // 提交
-        editor.save();
-        const cid = document.URL.match("cid=([0-9]*)")[1];
-        const pid = document.URL.match("pid=([0-9]*)")[1];
-        const submitForm = document.createElement("form");
-        submitForm.action = "submit.php";
-        submitForm.method = "POST";
-        submitForm.style.display = "none";
-        const args = {
-            "cid": cid,
-            "pid": pid,
-            "language": langForm.options[langForm.options.selectedIndex].value,
-            "source": editor.getValue()
-        }
-
-        console.log(args);
-        for (let k in args) {
-            const opt = document.createElement("textarea");
-            opt.name = k;
-            opt.value = args[k];
-            submitForm.appendChild(opt);
-        }
-        document.body.appendChild(submitForm);
-        submitForm.submit();
-    }
-
-    const answerContent = document.createElement("div");
-    const getAnswerButton = document.createElement("button");
-    getAnswerButton.innerHTML = "搜索答案(仅供参考)";
-    answerContent.appendChild(getAnswerButton);
-    let answerCard = generateCard("panel panel-info row", answerContent, "Answer(Demo)");
-    maindiv.insertBefore(answerCard, centerdivs[1]);
-    getAnswerButton.onclick = function () {
-        const problemTitle = document.querySelector("center > h2").textContent;
-        let searchResults = new Array();
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: "http://www.baidu.com/baidu?wd=" + problemTitle + "&tn=monline_dg&ie=utf-8",
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-            },
-            onload: response => {
-                if (response.status == 200) {
-                    let parser = new DOMParser();
-                    let html = parser.parseFromString(response.responseText, "text/html");
-                    html.querySelectorAll("a").forEach((a) => {
-                        if (a.href.match("baidu.com/link")) {
-                            searchResults.push(a.href);
+    if (options.appendAnswerCard) {
+        const answerContent = document.createElement("div");
+        const getAnswerButton = document.createElement("button");
+        getAnswerButton.innerHTML = "搜索答案(仅供参考)";
+        answerContent.appendChild(getAnswerButton);
+        let answerCard = generateCard("panel panel-info row", answerContent, "Answer(Demo)");
+        maindiv.insertBefore(answerCard, centerdivs[1]);
+        getAnswerButton.onclick = function () {
+            const problemTitle = document.querySelector("center > h2").textContent;
+            let searchResults = new Array();
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: "http://www.baidu.com/baidu?wd=" + problemTitle + "&tn=monline_dg&ie=utf-8",
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+                },
+                onload: response => {
+                    if (response.status == 200) {
+                        let parser = new DOMParser();
+                        let html = parser.parseFromString(response.responseText, "text/html");
+                        html.querySelectorAll("a").forEach((a) => {
+                            if (a.href.match("baidu.com/link")) {
+                                searchResults.push(a.href);
+                            }
+                        });
+                    }
+                    const answerPre = document.createElement("pre");
+                    const answerCode = document.createElement("code");
+                    answerCode.classList.add("language-cpp");
+                    answerPre.appendChild(answerCode);
+                    answerContent.appendChild(answerPre);
+                    GM_xmlhttpRequest({
+                        method: 'GET',
+                        url: searchResults[0],
+                        headers: {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
+                            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+                        },
+                        onload: response_ => {
+                            if (response_.status == 200) {
+                                let parser = new DOMParser();
+                                let html = parser.parseFromString(response_.responseText, "text/html");
+                                answerCode.innerHTML = html.querySelectorAll("code")[0].innerHTML;
+                                hljs.initHighlightingOnLoad(); // 高亮
+                            }
                         }
                     });
                 }
-                const answerPre = document.createElement("pre");
-                const answerCode = document.createElement("code");
-                answerCode.classList.add("language-cpp");
-                answerPre.appendChild(answerCode);
-                answerContent.appendChild(answerPre);
-                GM_xmlhttpRequest({
-                    method: 'GET',
-                    url: searchResults[0],
-                    headers: {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
-                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-                    },
-                    onload: response_ => {
-                        if (response_.status == 200) {
-                            let parser = new DOMParser();
-                            let html = parser.parseFromString(response_.responseText, "text/html");
-                            answerCode.innerHTML = html.querySelectorAll("code")[0].innerHTML;
-                            hljs.initHighlightingOnLoad(); // 高亮
-                        }
-                    }
-                });
-            }
-        });
-    };
+            });
+        };
+    }
 
     document.querySelectorAll(".content").forEach((content) => {
         content.classList.remove("content"); // 去掉hoj.css提供的.content的样式
