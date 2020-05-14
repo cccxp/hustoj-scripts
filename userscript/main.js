@@ -367,7 +367,7 @@ if (document.URL.match("pid")) {
             submitForm.appendChild(opt);
         }
         document.body.appendChild(submitForm);
-        // submitForm.submit();
+        submitForm.submit();
     }
 
     document.querySelectorAll(".content").forEach((content) => {
